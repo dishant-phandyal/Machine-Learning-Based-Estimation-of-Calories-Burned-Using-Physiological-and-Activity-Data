@@ -1,93 +1,175 @@
-# 🏃‍♂️ Machine Learning-Based Estimation of Calories Burned
+# 🏃‍♂️ AI-Powered Calorie Estimation System (ML Project)
 
-![Python](https://img.shields.io/badge/Python-3.11-blue.svg)
-![XGBoost](https://img.shields.io/badge/Model-XGBoost-orange.svg)
-![Scikit-Learn](https://img.shields.io/badge/Library-Scikit--Learn-lightgrey.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+**Software and tools requirement**
+* GitHub account
+* VS Code account
+* Python 3.10+
+
+---
 
 ## 📌 Overview
-This project is a high-performance machine learning regression system designed to estimate the amount of calories burned during physical activity. By analyzing physiological parameters (such as heart rate and body temperature) alongside physical attributes (age, height, weight), the model provides accurate real-time calorie burn estimations.
 
-Structured with a focus on modularity, the core training pipeline is entirely decoupled from the inference engine. This allows the model to be easily exported and integrated into scalable backend services or fitness-tracking applications.
+This project aims to predict the amount of calories burned during physical activity based on various physiological and demographic factors such as heart rate, body temperature, age, and workout duration. 
+The project follows a modular machine learning pipeline architecture, including data ingestion, transformation, model training, and a real-time interactive inference engine.
 
-## ✨ Key Features
-- **High Accuracy Regression:** Utilizes an `XGBRegressor` (eXtreme Gradient Boosting) to capture complex, non-linear relationships between heart rate, duration, and energy expenditure.
-- **Automated Pipeline:** Seamlessly handles data merging, categorical encoding, and feature engineering.
-- **Persistent Inference:** The model is saved as a `.pkl` file after initial training, ensuring instant, zero-latency loading for subsequent predictions.
-- **Interactive CLI:** Includes a built-in terminal interface for rapid testing and real-time physiological data input.
+## 🚀 Project Objectives
 
-## 🗂️ Project Architecture
+* Analyze physiological and exercise datasets.
+* Build a robust, decoupled ML pipeline.
+* Perform feature engineering and strict categorical encoding.
+* Train and evaluate advanced regression models (XGBoost).
+* Deploy a reusable, scalable, and instant-loading project structure via CLI.
+
+## 🧠 Problem Statement
+
+Given a user's biometric attributes and real-time workout statistics, accurately predict the **Calories** burned during that specific session.
+
+## 🗂️ Project Structure
+
 ```text
 Machine-Learning-Based-Estimation-of-Calories-Burned/
 │
-├── data/                   # Raw datasets (Not included in repo for privacy)
-│   ├── calories.csv        # Contains User_ID and Calories burned
-│   └── exercise.csv        # Contains biometric and duration data
+├── data/                    # Raw dataset files
+│   ├── calories.csv
+│   └── exercise.csv
 │
-├── models/                 # Serialized model artifacts
-│   └── xgboost_model.pkl   # Auto-generated post-training
+├── models/                  # Generated files (Serialized artifacts)
+│   └── xgboost_model.pkl    # Pre-trained model saved after first run
 │
-├── src/                    # Core modules
-│   ├── __init__.py         
-│   ├── data_processing.py  # Data ingestion and cleaning logic
-│   └── model_training.py   # XGBoost training and evaluation pipeline
+├── src/                     # Core pipeline modules
+│   ├── __init__.py
+│   ├── data_processing.py   # Data ingestion & transformation logic
+│   └── model_training.py    # Model trainer & evaluator
 │
-├── app.py                  # Main entry point and CLI interface
-└── requirements.txt        # Project dependencies
+├── calorie_env/             # Virtual environment (ignored in git)
+├── app.py                   # Main pipeline execution and CLI interface
+├── requirements.txt         # Project dependencies
+└── README.md                # Project documentation
 ```
 
-## ⚙️ Installation & Setup
+## ⚙️ Tech Stack
 
-**1. Clone the repository and navigate to the directory:**
+* **Python 3.11**
+* **Pandas, NumPy** (Data Manipulation)
+* **Scikit-learn** (Splitting & Metrics)
+* **XGBoost** (Core Regression Model)
+* **Joblib** (Model Serialization)
+
+## 🔄 ML Pipeline Workflow
+
+**1. Data Ingestion**
+* Reads `exercise.csv` and `calories.csv` from the source directory.
+* Merges datasets dynamically using `User_ID`.
+
+**2. Data Transformation**
+* Handles string formatting and whitespace stripping.
+* Applies encoding to categorical features (mapping 'male'/ 'female' to numeric boolean values).
+* Strictly casts data types to prevent `object` mapping errors within the model matrix.
+* Separates independent features (X) from the target variable (y).
+
+**3. Model Training & Execution**
+* Splits data into train & test subsets (80/20 split).
+* Trains an `XGBRegressor` to capture complex, non-linear physiological relationships.
+* Evaluates performance using Mean Absolute Error (MAE) and R-Squared ($R^2$).
+* Saves the best model (`xgboost_model.pkl`) to disk for zero-latency reloading on subsequent runs.
+
+## 📊 Features Used
+
+**Numerical Features**
+* `Age` (years)
+* `Height` (cm)
+* `Weight` (kg)
+* `Duration` (minutes)
+* `Heart_Rate` (bpm)
+* `Body_Temp` (°C)
+
+**Categorical Features**
+* `Gender` (Male/Female)
+
+## 🧪 How to Run the Project
+
+**Step 1: Clone the repository**
 ```bash
-git clone [https://github.com/yourusername/calorie-estimation-ml.git](https://github.com/yourusername/calorie-estimation-ml.git)
-cd calorie-estimation-ml
+git clone <your-repo-link>
+cd Machine-Learning-Based-Estimation-of-Calories-Burned
 ```
 
-**2. Create and activate a Virtual Environment:**
-```powershell
-# Create the virtual environment
+**Step 2: Create & activate virtual environment**
+```bash
 python -m venv calorie_env
-
-# Activate the environment (Windows)
-.\calorie_env\Scripts\activate
-
-# Activate the environment (Mac/Linux)
-source calorie_env/bin/activate
+.\calorie_env\Scripts\activate   # Windows
+# source calorie_env/bin/activate  # Mac/Linux
 ```
 
-**3. Install Dependencies:**
+**Step 3: Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-**4. Prepare the Data:**
-Ensure that `calories.csv` and `exercise.csv` are placed directly inside the `data/` folder. *(Note: Datasets can be sourced from standard physiological databases like Kaggle's FMEL dataset).*
-
-## 🚀 Usage
-
-Run the main application script:
+**Step 4: Run the pipeline**
 ```bash
 python app.py
 ```
 
-### Execution Flow:
-1. **First Run:** The system detects the absence of a compiled model. It will ingest the `data/` files, process them, train the XGBoost regressor, print the evaluation metrics (MAE & R-Squared), and serialize the model to the `models/` directory.
-2. **Subsequent Runs:** The system bypasses training and instantly loads the pre-trained model into memory.
-3. **Inference Loop:** The terminal will prompt you to enter biometric data (Gender, Age, Heart Rate, etc.) and instantly return the estimated calories burned.
+## 📈 Sample Output
 
-## 📊 Model Evaluation
-The system utilizes the following metrics to ensure reliability:
-* **Mean Absolute Error (MAE):** Measures the average magnitude of errors in the predictions, without considering their direction.
-* **R-Squared ($R^2$):** Represents the proportion of the variance for the dependent variable that's explained by the independent variables. 
+After running the pipeline for the first time, the following artifacts are generated and the CLI initializes:
+```text
+models/
+ └── xgboost_model.pkl
 
-*(Specific metric outputs will vary depending on the size and variance of the local dataset used during training).*
+==================================================
+        Live Calorie Prediction Interface         
+==================================================
+Gender (M/F): m
+Age (years): 25
+Height (cm): 175
+Weight (kg): 75
+Activity Duration (minutes): 30
+Average Heart Rate (bpm): 120
+Body Temperature (Celsius): 39
 
-## 🔮 Future Scope
-- Transition the CLI application into a RESTful API using **FastAPI** or **Flask** to support scalable web and mobile integrations.
-- Implement deep learning architectures (e.g., Feedforward Neural Networks) for comparison against the XGBoost baseline.
-- Expand feature engineering to include external environmental factors (humidity, ambient temperature).
-
----
-*Developed with a passion for high-performance data applications.*
+🔥 >> ESTIMATED CALORIES BURNED: 142.50 kcal << 🔥
 ```
+
+## 📌 Key Highlights
+
+* **High-Accuracy Regression:** Utilizes Gradient Boosting Decision Trees.
+* **Modular and Scalable Architecture:** Clean separation of concerns between processing, training, and UI.
+* **Persistent State:** Bypasses heavy retraining phases by caching the compiled model.
+* **Interactive CLI:** Built-in error handling for seamless user data entry.
+
+## ⚠️ Common Issues & Fixes
+
+| Issue | Solution |
+| :--- | :--- |
+| `FileNotFoundError` | Ensure `calories.csv` and `exercise.csv` are placed strictly inside the `data/` folder. |
+| `KeyError: 'object'` | Ensure `data_processing.py` includes the explicit string mapping and `.astype(int)` logic for the Gender column. |
+| Execution Policy Error | Run `Set-ExecutionPolicy Unrestricted -Scope CurrentUser` in PowerShell before activating the `venv`. |
+| Libraries not found | Ensure your IDE (VS Code) has the correct `calorie_env` interpreter selected in the bottom right corner. |
+
+## 📚 Future Improvements
+
+* Add Flask/FastAPI backend deployment.
+* Develop a graphical web dashboard using Streamlit.
+* Integrate CI/CD pipeline for automated testing.
+* Implement Hyperparameter tuning (GridSearchCV).
+* Docker containerization for OS-agnostic deployment.
+
+## 👨‍💻 Authors
+
+**B.Tech CS (AIML) - Semester VIII Project Team**
+* **Dishant Phandyal** (Reg: 220220216)
+* Vivek Chauhan
+* Aditya Gupta
+* Merajudaulah Shekh
+
+## ⭐ Acknowledgements
+
+* XGBoost & Scikit-learn documentation
+* Kaggle FMEL physiological dataset
+* ML pipeline architectural best practices
+
+## 📬 Contact
+
+Feel free to connect for collaboration or queries regarding this pipeline.
