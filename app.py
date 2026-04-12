@@ -2,82 +2,76 @@ import os
 import joblib
 import numpy as np
 import warnings
+import logging
+from src.logger import logging  # Imports the custom logger we just made
 from src.data_processing import load_and_preprocess_data, split_data
 from src.model_training import train_and_evaluate
 
-# Suppress XGBoost feature name warnings for cleaner terminal output
 warnings.filterwarnings("ignore", category=UserWarning)
 
 EXERCISE_DATA = 'data/exercise.csv'
 CALORIES_DATA = 'data/calories.csv'
-MODEL_PATH = 'models/xgboost_model.pkl'
+# Updated to use the artifacts folder
+MODEL_PATH = 'artifacts/model.pkl' 
 
 def main():
+    logging.info("Calorie Estimation System Initialized")
     print("==================================================")
     print("🏃‍♂️ AI Calorie Estimation System Initialization 🏃‍♂️")
     print("==================================================\n")
 
-    # 1. Model Training / Loading Pipeline
     if not os.path.exists(MODEL_PATH):
+        logging.info("No trained model found in artifacts/. Initiating training pipeline.")
         print("[INFO] No trained model found. Initiating training pipeline...")
         
         X, y = load_and_preprocess_data(EXERCISE_DATA, CALORIES_DATA)
         
         if X is None or y is None:
+            logging.error("Pipeline halted: Data files missing or corrupt.")
             print("[ERROR] Pipeline halted due to missing data. Please check data/ folder.")
             return
             
+        logging.info("Data loaded successfully. Splitting data.")
         X_train, X_test, y_train, y_test = split_data(X, y)
+        
+        logging.info("Starting model training.")
         model = train_and_evaluate(X_train, X_test, y_train, y_test, MODEL_PATH)
+        logging.info("Model training complete and saved to artifacts/.")
     else:
+        logging.info("Pre-trained model found in artifacts/. Loading model.")
         print("[INFO] Loading pre-trained XGBoost model from disk...\n")
         model = joblib.load(MODEL_PATH)
         print("[SUCCESS] Model loaded successfully!\n")
     
-    # 2. Interactive Prediction CLI
     print("==================================================")
     print("        Live Calorie Prediction Interface         ")
     print("==================================================")
-    print("Type 'q' at any prompt to quit the application.\n")
     
     while True:
         try:
-            gender_input = input("Gender (M/F): ").strip().lower()
-            if gender_input == 'q': break
+            gender_input = input("\nGender (M/F) or 'q' to quit: ").strip().lower()
+            if gender_input == 'q': 
+                logging.info("User exited the application.")
+                break
+            
             gender = 0 if gender_input == 'm' else 1
+            age = float(input("Age (years): "))
+            height = float(input("Height (cm): "))
+            weight = float(input("Weight (kg): "))
+            duration = float(input("Activity Duration (minutes): "))
+            heart_rate = float(input("Average Heart Rate (bpm): "))
+            body_temp = float(input("Body Temperature (Celsius): "))
             
-            age_input = input("Age (years): ")
-            if age_input.lower() == 'q': break
-            age = float(age_input)
-            
-            height_input = input("Height (cm): ")
-            if height_input.lower() == 'q': break
-            height = float(height_input)
-            
-            weight_input = input("Weight (kg): ")
-            if weight_input.lower() == 'q': break
-            weight = float(weight_input)
-            
-            duration_input = input("Activity Duration (minutes): ")
-            if duration_input.lower() == 'q': break
-            duration = float(duration_input)
-            
-            heart_input = input("Average Heart Rate (bpm): ")
-            if heart_input.lower() == 'q': break
-            heart_rate = float(heart_input)
-            
-            temp_input = input("Body Temperature (Celsius): ")
-            if temp_input.lower() == 'q': break
-            body_temp = float(temp_input)
-            
-            # Format input for prediction: Gender, Age, Height, Weight, Duration, Heart_Rate, Body_Temp
             input_features = np.array([[gender, age, height, weight, duration, heart_rate, body_temp]])
+            
             estimated_calories = model.predict(input_features)[0]
+            logging.info(f"Prediction successful: {estimated_calories:.2f} kcal generated for user input.")
             
             print(f"\n🔥 >> ESTIMATED CALORIES BURNED: {estimated_calories:.2f} kcal << 🔥\n")
             print("-" * 50)
             
         except ValueError:
+            logging.warning("Invalid user input detected (ValueError).")
             print("\n[WARNING] Invalid input. Please enter numerical values.\n")
 
 if __name__ == "__main__":
