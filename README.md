@@ -29,15 +29,18 @@ Given a user's biometric attributes and real-time workout statistics, accurately
 ```text
 Machine-Learning-Based-Estimation-of-Calories-Burned/
 │
+├── artifacts/               # Generated files (Serialized artifacts)
+│   └── model.pkl            # Pre-trained model saved after first run
+│
 ├── data/                    # Raw dataset files
 │   ├── calories.csv
 │   └── exercise.csv
 │
-├── models/                  # Generated files (Serialized artifacts)
-│   └── xgboost_model.pkl    # Pre-trained model saved after first run
+├── logs/                    # Timestamped system execution logs
 │
 ├── src/                     # Core pipeline modules
 │   ├── __init__.py
+│   ├── logger.py            # Custom logging configuration
 │   ├── data_processing.py   # Data ingestion & transformation logic
 │   └── model_training.py    # Model trainer & evaluator
 │
